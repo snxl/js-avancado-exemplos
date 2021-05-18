@@ -6,18 +6,12 @@ let compare = undefined
 
 let dataCompare = undefined
 
-initial()
-
-event.once("dataReceived", ()=>{
-    process.stdout.write("\nDigite um número para comparar :")
-
-    process.stdin.once("data", (data)=>{
-        dataCompare = Number(data)
-        process.exitCode
-        event.emit("dataTerminal")
-        process.exit()
-    })
-})
+async function waitForInitial() {
+    while(true) {  
+    await initial()
+}
+    
+waitForInitial();
 
 event.on("dataTerminal",()=>{
     promise()
@@ -39,12 +33,25 @@ const promise = (comparePromisse = compare, dataToCompare = dataCompare ) =>  ne
     }
 })
 
-function initial(){
+async function initial(){
     process.stdout.write("Digite um número :")
-
-    process.stdin.once("data", (data)=>{
+    return new Promise((resolve, reject) => {
+        process.stdin.once("data", (data)=>{
         compare = Number(data)
         process.exitCode
         event.emit("dataReceived")
     })
+    event.once("dataReceived", ()=>{
+        process.stdout.write("\nDigite um número para comparar :")
+
+        process.stdin.once("data", (data)=>{
+            dataCompare = Number(data)
+            process.exitCode
+            event.emit("dataTerminal")
+            process.exit()
+            resolve();
+        })
+})
+    });
+    
 }
